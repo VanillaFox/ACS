@@ -1,0 +1,183 @@
+\documentclass{article}
+\usepackage{sagetex}
+\setlength{\sagetexindent}{10ex}
+\usepackage{amsmath}
+\usepackage[russian]{babel}
+\usepackage{hyperref}
+\usepackage[left=15mm,top=30mm,bottom=30mm,right=15mm]{geometry}
+\begin{document}
+\begin{center}
+\Large{\textbf{Лабораторная работа 2. Задание 3 - приведение поверхности второго порядка к каноническому виду.}}
+\end{center}
+
+
+\section*{Задание}
+\begin{enumerate}
+\item Упростить уравнение поверхности второго порядка в пространстве;
+\item Привести к каноническому виду;
+\item Построить исходную фигуру и упрощенную;
+\item Сравнить вручную найденные собственные числа и собственные вектора со значениями, полученными с помощью встроенных функцийю
+\end{enumerate}
+
+\begin{center}
+Вариант 7
+
+$8x^2 - 2xy - 4y^2 + 2xz - 2yz + 3z^2 + 7x + 8y + 9z - 10$
+\end{center}
+
+\section*{Построение исходной поверхности}
+Функция:
+
+\begin{sageblock}
+f(x, y, z) = 8*x**2 - 2*x*y - 4*y**2 + 2*x*z - 2*y*z + 3*z**2 + 7*x + 8*y + 9*z - 10
+\end{sageblock}
+Выведем ее:
+\begin{center}
+$\sage{f}$
+\end{center}
+Построим ее график:
+\begin{center}
+\sageplot{implicit_plot3d(f, (x, -30, 30), (y, -30, 30), (z, -30, 30), color = 'green', figsize = 3)}
+\end{center}
+\newpage
+\section*{Приведем поверхность к каноническому виду}
+
+Общее уравнение поверхности второго порядка имеет вид
+
+$Ax^2 + By^2 + Cz^2 + 2Fxy + 2Gyz + 2Hzx + 2Px + 2Qy + 2Rz + D = 0$.
+
+Составим матрицу квадратичной формы A и матрицу квадратичной, линейной форм и свободного члена K:
+\begin{center}
+
+$A =
+\begin{pmatrix}
+A & F & H\\
+F & B & G\\
+H & G & C
+\end{pmatrix}\
+K =
+\begin{pmatrix}
+A & F & H & P\\
+F & B & G & Q\\
+H & G & C & R\\
+P & Q & R & D
+\end{pmatrix}$
+\end{center}
+
+\begin{sageblock}
+A = matrix([[8, -1, 1],
+          [-1, -4, -1],
+          [1, -1, 3]])
+
+K = matrix([[8, -1, 1, 3.5],
+           [-1, -4, -1, 4],
+           [1, -1, 3, 4.5],
+           [3.5, 4, 4.5, -10]])
+\end{sageblock}
+
+Найдем инварианты:
+
+$I_1 = A+B+C$
+
+$I_2 = \begin{pmatrix}
+A & F\\
+F & B \end{pmatrix}\
++ \begin{pmatrix}
+A & H\\
+H & C \end{pmatrix}\
++ \begin{pmatrix}
+B & G\\
+G & C \end{pmatrix}$
+
+$I_3 = det(A)$
+
+$I_4 = det(K)/I_3$
+
+$K_1 = det(k)$
+
+\begin{sageblock}
+I1 = A.trace()
+I2 = A[0:2, 0:2].det() + A[[0, 2], [0, 2]].det() + A[1:3, 1:3].det()
+I3 = det(A)
+I4 = K.det()/I3
+K1 = K.det()
+\end{sageblock}
+
+Получили следующие результаты:
+
+\begin{center}
+$I_1 = \sage{I1}$
+
+$I_2 = \sage{I2}$
+
+$I_3 = \sage{I3}$
+
+$I_4 = \sage{I4}$
+
+$K_1 = \sage{K1}$
+
+\end{center}
+
+Сравним полученные инварианты $I_1, I_2, I_3$ с инвариантами характеристического уровнения $\lambda{^3} - I_1\lambda{^2}+I_2\lambda-I_3=0$, полеченного с помощью встроенной функции .charpoly()
+
+$\sage{A.charpoly(x)}$
+
+Они совпадают, значит инварианты получены верно. Теперь найдем корни характеристического уравнения:
+
+\begin{sagesilent}
+var("v")
+\end{sagesilent}
+
+\begin{sageblock}
+E = matrix([
+    [1, 0, 0],
+    [0, 1, 0],
+    [0, 0, 1]
+])
+
+values = []
+for value in solve((A - v * E).det(), v):
+    values.append(real_part(n(value.rhs())))
+\end{sageblock}
+
+\begin{center}
+$\lambda_1 = \sage{values[0]}$
+
+$\lambda_2 = \sage{values[1]}$
+
+$\lambda_3 = \sage{values[2]}$
+
+\end{center}
+
+Сравним полученные корни характеристического уравнения с корнями, полученными с помощью встроенной функции .eigenvalues():
+
+$\sage{A.eigenvalues()}$
+
+Совпадают. Значит теперь на основе корней характеристического уравнения и инвариант можно понять, какая перед нами поверхность. Так как два корня характеристического уравнения имеют один знак, а третий корень и $I_4$ имеют знак, им противоположный, то общее уравнение поверхности второго порядка определяет однополостный гиперболоид.
+
+Найдем a, b, c:
+
+$a = \sqrt{\frac{-K_1}{I_3\lambda_1}}, $
+$b = \sqrt{\frac{-K_1}{I_3\lambda_2}}, $
+$c = \sqrt{\frac{-K_1}{I_3\lambda_3}}$
+
+\begin{sageblock}
+a = -sqrt(K1/(I3*values[0]))
+b = -sqrt(K1/(I3*values[1]))
+c = -sqrt(K1/(I3*values[2]))
+\end{sageblock}
+
+Каноническое уравнение имеет вид $\frac{x^2}{a^2}+\frac{y^2}{b^2}-\frac{z^2}{c^2} - 1$.
+
+\begin{sageblock}
+f_canon(x1, y1, z1) = x1**2 / a**2 + y1**2 / b**2 - z1**2 / c**2 - 1
+\end{sageblock}
+
+$f = \sage{f_canon(x1, y1, z1)}$
+
+Построим график канонической функции:
+
+\begin{center}
+\sageplot{implicit_plot3d(f_canon, (x1, -30, 30), (y1, -30, 30), (z1, -30, 30), color = 'red', figsize = 3)}
+\end{center}
+\end{document}
